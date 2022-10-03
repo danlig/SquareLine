@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 from matplotlib.backend_bases import MouseButton
-from time import sleep
+from time import sleep, time
 from ai import find_best_move
 from board import plot, N
 from state import State
@@ -23,7 +23,7 @@ def on_click(event, game_type):
     """Manage click event."""
     # Block if gameover or AI is thinking
     if event.button is MouseButton.LEFT \
-            and not(current_state.gameover()[0])\
+            and not(current_state.gameover())\
             and not(thinking):
 
         # AI vs AI game type
@@ -57,12 +57,12 @@ def on_click(event, game_type):
             except ValueError:
                 is_legal_move = 0
 
+            # Restore defaults value
+            last_dot = ()
+
             # Check if legal move
             if not(is_legal_move):
                 return
-
-            # Restore defaults value
-            last_dot = ()
             
             # Next turn
             current_state.next_turn()
@@ -82,14 +82,16 @@ def refresh_figure():
 
 def ai_vs_ai():
     """AI vs AI game type."""
-    while not(current_state.gameover()[0]):
+    while not(current_state.gameover()):
         ai_turn()
         refresh_figure()
         sleep(1)
 
 def ai_turn():
     """AI turn."""
-    print("AI is thinking a move...")
+    start = time()
+    print("\nAI is thinking a move...")
+
     global thinking
     thinking = True
 
@@ -100,6 +102,9 @@ def ai_turn():
     refresh_figure()
 
     thinking = False
+
+    end = time()
+    print("Thinking time: {}s".format(round(end-start, 2)))
 
 def main():
     # Menu

@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 from move import Move
 from board import N
-from ai import MAX_EVAL, MIN_EVAL
 
 
 class State:
@@ -55,34 +54,27 @@ class State:
 
     def evaluate(self):
         """Return evaluation of the position."""
+        return self.players_score[1] - self.players_score[0]
+
+    def gameover(self):
+        """Return true if the game is over."""
+        # Get win threshold
         win_threshold = self.get_win_threshold()
 
-        if self.players_score[0] >= win_threshold:
-            return MIN_EVAL # player 1 won
-        elif self.players_score[1] >= win_threshold:
-            return MAX_EVAL # player 2 won
-        else:
-            # gap in the player score
-            return self.players_score[1] - self.players_score[0]
-        
-    def gameover(self):
-        """Return true if the game is over and the eventual winner."""
-        # Return eventual winner player
-        eval = self.evaluate()
+        # Game over conditions
+        player1_won = self.players_score[0] >= win_threshold
+        player2_won = self.players_score[1] >= win_threshold
+        tie = self.evaluate() == 0 and not(self.moves_left())
 
-        if eval == MIN_EVAL:
-            return True, 0 # player 1 won
-        elif eval == MAX_EVAL:
-            return True, 1 # player2 won
-        elif eval == 0 and not(self.moves_left()):
-            return True, None # tie
+        if player1_won or player2_won or tie:
+            return True
         else:
-            return False, None # game is NOT over
+            return False
 
     def next_turn(self):
         """Proceed to the next turn."""
         # Check gameover
-        if self.gameover()[0]:
+        if self.gameover():
             scoreboard = "GAME OVER \n\n"
         else:
             # Change player turn

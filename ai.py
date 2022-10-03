@@ -12,7 +12,7 @@ MIN_EVAL = -10000000
 def minimax(state, depth, alpha, beta):
     # Terminating conditions
     # (game over or max depth is reached)
-    if (state.gameover()[0] or depth == MAX_DEPTH):
+    if (state.gameover() or depth == MAX_DEPTH):
         return state.evaluate()
 
     # Maximizer's turn (player 2)
@@ -66,7 +66,7 @@ def get_future_state(current_state, move):
     return future_state
 
 def find_best_move(state):
-    """This will return the best possible move for the player"""     
+    """This will return the best possible move for the player"""    
     best_move = None
     best_val = MIN_EVAL if state.player_turn else MAX_EVAL
 
@@ -88,9 +88,8 @@ def find_best_move(state):
             best_move = move
             best_val = eval
 
-    # If there are not best moves, choose a random one
-    if best_move == None:
-        print("AI selected a random move because no one is good!")
-        best_move = random.choice(state.available_moves)
+    # Print best move evaluation
+    print("Best move done (depth: {}), evaluation: {}"\
+        .format(MAX_DEPTH, best_val))
 
     return best_move

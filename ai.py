@@ -1,5 +1,8 @@
 import copy
 import random
+import numpy
+from functools import partial
+from multiprocessing import Pool
 
 # Max depth
 MAX_DEPTH = 3
@@ -66,30 +69,32 @@ def get_future_state(current_state, move):
     return future_state
 
 def find_best_move(state):
-    """This will return the best possible move for the player"""    
-    best_move = None
-    best_val = MIN_EVAL if state.player_turn else MAX_EVAL
-
+    """This will return the best possible move for the player"""
     # Randomize position of available moves 
     # (for more variance in the choice of even evaluation moves)
     random.shuffle(state.available_moves)
 
-    # Evaluate all possible moves
-    for move in state.available_moves:
-        # Compute evaluation for current move
-        future_state = get_future_state(state, move)
-        eval = minimax(future_state, 0, MIN_EVAL, MAX_EVAL)
+    global evaluate_move
+    def evaluate_move(move, s):
+        """Compute evaluation of a move."""
+        return minimax(get_future_state(s, move), 0, MIN_EVAL, MAX_EVAL)
 
-        # Update best move
-        if state.player_turn: is_best_move = eval > best_val
-        else: is_best_move = eval < best_val
+    # Get evaluation of all possible moves (with multiprocessing)
+    p = Pool(len(state.available_moves))
+    f = partial(evaluate_move, s=state)
+    eval_array = numpy.asarray(p.map(f, state.available_moves))
 
-        if (is_best_move):		
-            best_move = move
-            best_val = eval
+    if state.player_turn:
+        # player 2 (maximizer)
+        best_val = numpy.amax(eval_array)
+        i = numpy.argmax(eval_array)
+    else:
+        # player 1 (minimizer)
+        best_val = numpy.amin(eval_array)
+        i = numpy.argmin(eval_array)
 
     # Print best move evaluation
     print("Best move done (depth: {}), evaluation: {}"\
         .format(MAX_DEPTH, best_val))
 
-    return best_move
+    return state.available_moves[i]

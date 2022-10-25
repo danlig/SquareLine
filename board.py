@@ -17,7 +17,8 @@ def plot():
     for i in range(1, N+1):
         for j in range(1, N):
             # Define linestyle
-            ls = "-" if i == N or i == 1 else ":"
+            # ls< = "-" if i == N or i == 1 else ":"
+            ls = ":"
 
             # Define moves
             move1 = Move((i, j), (i, j+1))
